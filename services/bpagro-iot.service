@@ -1,0 +1,20 @@
+[Unit]
+Description=BP Agro IoT — Sensor Management & Data Ingestion API
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/bp-agro-iot/global_management
+EnvironmentFile=/home/ubuntu/bp-agro-iot/.env
+Environment="PATH=/home/ubuntu/bp-agro-iot/venv/bin"
+ExecStart=/home/ubuntu/bp-agro-iot/venv/bin/gunicorn \
+    --workers 3 \
+    --bind 0.0.0.0:5000 \
+    --timeout 60 \
+    app:app
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
