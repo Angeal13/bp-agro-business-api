@@ -1,59 +1,19 @@
-# bp-agro-iot
+# BP Agro — Business Admin Portal
 
-**BP Agro — Business Management API**
+A modern, non-technical interface for BP Agro administrators to manage clients, farms, and platform-wide statistics.
 
-Cloud-hosted Flask API for client and farm management. Business-end only — no node or zone management. Runs on AWS EC2, connects to Aurora.
+## Features
+- **Overview Dashboard**: Real-time KPIs for the entire ecosystem.
+- **Client Management**: Create, update, and delete clients.
+- **Farm Tracking**: View all farms across the platform.
+- **Unified Design**: Built with the **Nature Tech** design system for a premium experience.
 
-## Responsibility
-- Client registration, lookup, update, delete
-- Farm registration with GPS coordinates (for weather)
-- Gateway computer type assignment to farm
-- Platform-wide dashboard KPIs
+## Deployment
+1. **Frontend**: Serve the `frontend/index.html` file using any web server (Nginx, Apache, or AWS S3).
+2. **Backend**: Ensure the `bp-agro-business-api` is running and accessible.
+3. **Configuration**: Update the `API_BASE` constant in `frontend/index.html` to point to your deployed Global API URL.
 
-**Not handled here:** zones, crops, nodes, soil data. Those belong to the gateway.
-
-## Quick Start
-```bash
-git clone https://github.com/bp-agro/bp-agro-iot
-cd bp-agro-iot
-cp .env.example .env
-nano .env
-bash deploy.sh
-```
-
-## Environment Variables
-```
-DB_HOST=your-aurora-cluster.rds.amazonaws.com
-DB_USER=bpagro
-DB_PASSWORD=FILL_ME
-DB_NAME=soildb
-PORT=5000
-FLASK_ENV=production
-```
-
-## API Endpoints
-Base URL: `http://<host>:5000/api/global`
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET/POST | /client | List / create clients |
-| GET/PUT/DELETE | /client/{id} | Get / update / delete client |
-| GET/POST | /farm | List / create farms |
-| GET/PUT/DELETE | /farm/{id} | Get / update / delete farm |
-| GET    | /stats | Dashboard KPIs |
-| GET    | /health | Service health |
-
-## Repository Structure
-```
-global_management/
-  app.py              — Flask app, blueprint registration, /stats
-  routes/
-    client_routes.py  — client CRUD
-    farm_routes.py    — farm CRUD
-  config/
-    aurora_config.py  — Aurora connection config
-database/
-  aws_schema.sql      — Aurora schema
-services/
-  bpagro-iot.service  — systemd unit
-```
+## Tech Stack
+- **UI**: Vanilla JavaScript / HTML5 / CSS3
+- **Icons**: FontAwesome 6.0
+- **Fonts**: Space Grotesk, DM Sans, Fira Code

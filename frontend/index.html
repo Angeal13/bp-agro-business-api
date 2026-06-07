@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BP Agro — Business Admin Portal</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
+
+:root {
+  --primary: #15803D; --primary-light: #22C55E; --accent: #CA8A04;
+  --bg-main: #F0FDF4; --bg-card: #FFFFFF; --text-main: #14532D;
+  --text-muted: #475569; --border: #DCFCE7;
+  --critical: #B91C1C; --important: #D97706; --info: #2563EB;
+  --font: 'DM Sans', sans-serif; --heading: 'Space Grotesk', sans-serif; --mono: 'Fira Code', monospace;
+  --radius: 16px; --radius-sm: 10px;
+  --shadow: 0 4px 12px -2px rgba(21, 128, 61, 0.08);
+  --sidebar-w: 260px; --topbar-h: 64px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--bg-main); color: var(--text-main); font-size: 14px; height: 100vh; overflow: hidden; display: flex; }
+
+/* ── SIDEBAR ── */
+.sidebar { width: var(--sidebar-w); background: var(--text-main); color: #fff; display: flex; flex-direction: column; flex-shrink: 0; z-index: 500; }
+.sb-hdr { height: var(--topbar-h); display: flex; align-items: center; padding: 0 24px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.logo { font-family: var(--heading); font-weight: 700; font-size: 20px; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
+.logo i { color: var(--primary-light); }
+.sb-nav { flex: 1; padding: 24px 12px; display: flex; flex-direction: column; gap: 4px; }
+.nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; cursor: pointer; color: rgba(255,255,255,0.6); font-weight: 600; transition: all 0.2s; text-decoration: none; }
+.nav-item i { font-size: 18px; width: 20px; text-align: center; }
+.nav-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
+.nav-item.active { background: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.sb-ftr { padding: 20px 24px; border-top: 1px solid rgba(255,255,255,0.05); }
+.version { font-family: var(--mono); font-size: 10px; color: rgba(255,255,255,0.3); }
+
+/* ── MAIN CONTENT ── */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.topbar { height: var(--topbar-h); background: #fff; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; flex-shrink: 0; }
+.page-title { font-family: var(--heading); font-size: 18px; font-weight: 700; }
+.user-zone { display: flex; align-items: center; gap: 12px; font-weight: 600; color: var(--text-muted); }
+.content { flex: 1; overflow-y: auto; padding: 32px; display: flex; flex-direction: column; gap: 32px; }
+
+/* ── DASHBOARD / STATS ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+.kpi-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); transition: transform 0.2s; }
+.kpi-card:hover { transform: translateY(-4px); }
+.kpi-label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.kpi-value { font-family: var(--heading); font-size: 32px; font-weight: 700; line-height: 1; }
+
+/* ── DATA TABLES ── */
+.section-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+.card-hdr { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.01); }
+.card-title { font-family: var(--heading); font-size: 16px; font-weight: 700; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; padding: 14px 24px; background: var(--bg-main); font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid var(--border); }
+td { padding: 16px 24px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tr:hover td { background: var(--bg-main); }
+.badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; font-family: var(--mono); }
+.badge-id { background: var(--text-main); color: #fff; }
+.badge-active { background: #DCFCE7; color: var(--primary); }
+.badge-count { background: #F1F5F9; color: var(--text-muted); }
+
+/* ── MODALS / FORMS ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(20, 83, 45, 0.4); backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
+.modal { background: #fff; width: 100%; max-width: 500px; border-radius: var(--radius); box-shadow: 0 20px 50px rgba(0,0,0,0.2); animation: slideUp 0.3s ease-out; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.modal-hdr { padding: 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.modal-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+label { font-weight: 700; font-size: 12px; color: var(--text-muted); text-transform: uppercase; }
+input { padding: 12px 16px; border: 1px solid var(--border); border-radius: 10px; font-family: var(--font); font-size: 14px; outline: none; transition: border-color 0.2s; }
+input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(21,128,61,0.1); }
+.modal-ftr { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; background: rgba(0,0,0,0.01); }
+
+/* ── BUTTONS ── */
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 10px; border: none; font-family: var(--font); font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 13px; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--text-main); transform: translateY(-1px); }
+.btn-ghost { background: transparent; color: var(--text-muted); }
+.btn-ghost:hover { background: var(--bg-main); color: var(--text-main); }
+.btn-icon { width: 32px; height: 32px; padding: 0; justify-content: center; border-radius: 8px; }
+.btn-danger-ghost { background: transparent; color: var(--critical); }
+.btn-danger-ghost:hover { background: #FEE2E2; }
+
+/* ── UTILS ── */
+.hidden { display: none !important; }
+.loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 2000; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 16px; font-family: var(--heading); font-weight: 700; color: var(--primary); }
+.spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+</style>
+</head>
+<body>
+
+<div id="loader" class="loading-overlay"><div class="spinner"></div><div>SYNCING WITH GLOBAL API...</div></div>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-hdr">
+    <div class="logo"><i class="fas fa-seedling"></i> BP<span>Agro</span></div>
+  </div>
+  <div class="sb-nav">
+    <div class="nav-item active" onclick="switchTab('dash', this)"><i class="fas fa-th-large"></i> Overview</div>
+    <div class="nav-item" onclick="switchTab('clients', this)"><i class="fas fa-users"></i> Clients</div>
+    <div class="nav-item" onclick="switchTab('farms', this)"><i class="fas fa-tractor"></i> Farms</div>
+    <div class="nav-item" onclick="switchTab('infra', this)"><i class="fas fa-server"></i> Infrastructure</div>
+  </div>
+  <div class="sb-ftr">
+    <div class="version">BUSINESS PORTAL V1.0</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="page-title" id="p-title">Overview</div>
+    <div class="user-zone">
+      <span>Business Admin</span>
+      <div style="width:36px;height:36px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff">BA</div>
+    </div>
+  </div>
+
+  <div class="content">
+    
+    <!-- DASHBOARD VIEW -->
+    <div id="v-dash" class="view">
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-label">Total Clients</div><div class="kpi-value" id="k-clients">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">Managed Farms</div><div class="kpi-value" id="k-farms">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">Total Zones</div><div class="kpi-value" id="k-zones">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">Active Sensors</div><div class="kpi-value" id="k-sensors">—</div></div>
+      </div>
+      
+      <div style="display:grid;grid-template-columns:1fr 1.2fr;gap:24px;margin-top:32px;">
+        <div class="section-card">
+          <div class="card-hdr"><div class="card-title">Recent Activity</div><i class="fas fa-bolt" style="color:var(--accent)"></i></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Type</th><th>Count</th><th>Last Seen</th></tr></thead>
+              <tbody id="t-activity"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="card-hdr"><div class="card-title">Network Health</div><div class="badge badge-active" id="api-status">API CONNECTED</div></div>
+          <div style="padding:24px;display:flex;flex-direction:column;gap:12px;">
+            <div style="display:flex;justify-content:space-between"><span>Global API (Aurora)</span><span style="color:var(--primary);font-weight:700">Healthy</span></div>
+            <div style="display:flex;justify-content:space-between"><span>Sensor Data (24h)</span><span id="k-readings" style="font-weight:700">—</span></div>
+            <div style="display:flex;justify-content:space-between"><span>Online Gateways</span><span id="k-gateways" style="font-weight:700">—</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLIENTS VIEW -->
+    <div id="v-clients" class="view hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h2 class="card-title">Client Directory</h2>
+        <button class="btn btn-primary" onclick="openModal('m-client')"><i class="fas fa-user-plus"></i> New Client</button>
+      </div>
+      <div class="section-card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Client ID</th><th>Client Name</th><th>Farms</th><th>Sensors</th><th>Email</th><th>Actions</th></tr></thead>
+            <tbody id="t-clients"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- FARMS VIEW -->
+    <div id="v-farms" class="view hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h2 class="card-title">Managed Farms</h2>
+        <div style="display:flex;gap:12px;">
+          <input type="text" placeholder="Search farm ID..." style="padding:8px 16px;border-radius:10px;border:1px solid var(--border)">
+        </div>
+      </div>
+      <div class="section-card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Farm ID</th><th>Name</th><th>Client</th><th>Zones</th><th>Sensors</th><th>Gateways</th></tr></thead>
+            <tbody id="t-farms"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- INFRA VIEW -->
+    <div id="v-infra" class="view hidden">
+       <div class="section-card">
+        <div class="card-hdr"><div class="card-title">Infrastructure Overview</div></div>
+        <div style="padding:32px;text-align:center;color:var(--text-muted)">
+          <i class="fas fa-microchip" style="font-size:48px;margin-bottom:16px;opacity:0.2"></i>
+          <p>Global infrastructure monitoring is managed via CloudWatch.</p>
+          <p style="font-size:12px">View active gateways in the Farms tab.</p>
+        </div>
+       </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODALS -->
+<div id="m-client" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-hdr"><div class="card-title">Register New Client</div><i class="fas fa-times" style="cursor:pointer" onclick="closeModal('m-client')"></i></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Client / Company Name</label><input type="text" id="i-cl-name" placeholder="e.g. Green Valley Ag"></div>
+      <div class="form-group"><label>Email Address</label><input type="email" id="i-cl-email" placeholder="contact@example.com"></div>
+      <div class="form-group"><label>WhatsApp Number</label><input type="text" id="i-cl-phone" placeholder="+1234567890"></div>
+    </div>
+    <div class="modal-ftr">
+      <button class="btn btn-ghost" onclick="closeModal('m-client')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveClient()">Create Client Account</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = 'http://localhost:5000/api/global'; // Adjust to your AWS production URL
+
+async function fetchData(endpoint) {
+  try {
+    const r = await fetch(`${API_BASE}${endpoint}`);
+    if(!r.ok) throw new Error(r.statusText);
+    return await r.json();
+  } catch(e) {
+    console.error("API Error:", e);
+    return null;
+  }
+}
+
+async function postData(endpoint, data) {
+  try {
+    const r = await fetch(`${API_BASE}${endpoint}`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(data)
+    });
+    return await r.json();
+  } catch(e) {
+    console.error("Post Error:", e);
+    return {error: "Network failed"};
+  }
+}
+
+function switchTab(tab, el) {
+  document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+  document.querySelectorAll('.nav-item').forEach(v => v.classList.remove('active'));
+  document.getElementById(`v-${tab}`).classList.remove('hidden');
+  el.classList.add('active');
+  document.getElementById('p-title').innerText = el.innerText.trim();
+  
+  if(tab === 'dash') loadDashboard();
+  if(tab === 'clients') loadClients();
+  if(tab === 'farms') loadFarms();
+}
+
+async function loadDashboard() {
+  const d = await fetchData('/stats');
+  if(!d) return;
+  const s = d.stats;
+  document.getElementById('k-clients').innerText = s.total_clients;
+  document.getElementById('k-farms').innerText = s.total_farms;
+  document.getElementById('k-zones').innerText = s.total_zones;
+  document.getElementById('k-sensors').innerText = s.active_sensors;
+  document.getElementById('k-readings').innerText = s.readings_24h.toLocaleString();
+  document.getElementById('k-gateways').innerText = s.online_gateways;
+}
+
+async function loadClients() {
+  const d = await fetchData('/client/list?limit=100');
+  if(!d) return;
+  const tbody = document.getElementById('t-clients');
+  tbody.innerHTML = d.clients.map(c => `
+    <tr>
+      <td><span class="badge badge-id">${c.client_id}</span></td>
+      <td style="font-weight:700">${c.client_name}</td>
+      <td><span class="badge badge-count">${c.farm_count} Farms</span></td>
+      <td><span class="badge badge-active">${c.active_sensors} / ${c.sensor_count}</span></td>
+      <td style="color:var(--text-muted)">${c.email || '—'}</td>
+      <td>
+        <button class="btn btn-ghost btn-icon" title="Edit"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-danger-ghost btn-icon" onclick="deleteClient('${c.client_id}')"><i class="fas fa-trash"></i></button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function loadFarms() {
+  // Simplified since we don't have a global farm list endpoint, 
+  // we usually fetch per client, but let's mock the aggregate for now or handle search
+  const d = await fetchData('/stats'); // Re-using stats for context
+  document.getElementById('t-farms').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Select a client to view associated farms or search by ID.</td></tr>';
+}
+
+async function saveClient() {
+  const name = document.getElementById('i-cl-name').value;
+  if(!name) return alert("Client name is required");
+  
+  document.getElementById('loader').style.display = 'flex';
+  const res = await postData('/client/create', {
+    client_name: name,
+    email: document.getElementById('i-cl-email').value,
+    whatsapp: document.getElementById('i-cl-phone').value
+  });
+  
+  document.getElementById('loader').style.display = 'none';
+  if(res.success) {
+    closeModal('m-client');
+    loadClients();
+  } else {
+    alert(res.error || "Failed to create client");
+  }
+}
+
+async function deleteClient(id) {
+  if(!confirm(`Delete client ${id} and ALL associated data (farms, zones)? This cannot be undone.`)) return;
+  
+  document.getElementById('loader').style.display = 'flex';
+  try {
+    const r = await fetch(`${API_BASE}/client/${id}`, { method: 'DELETE' });
+    const res = await r.json();
+    if(res.success) loadClients();
+    else alert(res.error);
+  } catch(e) { console.error(e); }
+  document.getElementById('loader').style.display = 'none';
+}
+
+function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+// Init
+window.onload = () => {
+  loadDashboard();
+};
+</script>
+
+</body>
+</html>
